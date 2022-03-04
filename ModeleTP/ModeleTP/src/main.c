@@ -9,21 +9,30 @@ void init(){
 	allumerPeriph(PortB);
 	programmerLigne(PortB,25, ENTREE);
 	activerFiltrageLigne(PortB,25,30);
-	
+	//On démarre le bouton BP2;
+	allumerPeriph(PortC);
+	programmerLigne(PortC,26,ENTREE);
+	activerFiltrageLigne(PortC,26,30);
 }
 
 int main (void)
 {
 	init();
-	int tabPosition[] = {10,0,-10,0};
+	int tabAngle[] = {10,0,-10,0};
+	//BASE = 0 , EPAULE = 1
+	int indiceMoteur = 0;
 	int i = 0;
 	while(true) {
-		if(lireLigne(PortB,25)==1)
+		if(lireLigne(PortB,25))
 		{
-			positionnerMoteur(BASE,tabPosition[i]);
+			positionnerMoteur(indiceMoteur,tabAngle[i]);
 			i=(i+1)%4;
-			
 			while (lireLigne(PortB,25));
+		}
+		if(lireLigne(PortC,26))
+		{
+			indiceMoteur=(indiceMoteur+1)%2;
+			while(lireLigne(PortC,26));
 		}
 	}
 }
