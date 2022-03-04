@@ -17,38 +17,62 @@ void init(){
 	
 	programmerLigne(PortC,30,SORTIE0);//Gauche
 	programmerLigne(PortB,27,SORTIE0);//Droite
+	programmerLigne(PortA,21,SORTIE1);//Milieu
+}
+
+int tabAngle[] = {10,0,-10,0};
+//BASE = 0 , EPAULE = 1
+int indiceMoteur = 0;
+int tabMoteur[] = {0,0,0,0,0};
+void retourAZero()
+{
+	for (int i=0;i<=4;i++)
+	{
+		ecrireLigne(PortB,27,1);
+		ecrireLigne(PortA,21,0);
+		ecrireLigne(PortC,30,0);
+		positionnerMoteur(i,0);
+		tabMoteur[i]=0;
+	}
 }
 
 int main (void)
 {
 	init();
-	int tabAngle[] = {10,0,-10,0};
-	//BASE = 0 , EPAULE = 1
-	int indiceMoteur = 0;
-	int i = 0;
+	
+
 	while(true) {
-		if(indiceMoteur)
-		{
-			programmerLigne(PortB,27,SORTIE1);
-			programmerLigne(PortC,30,SORTIE1);
+		if(indiceMoteur !=5){
+		ecrireLigne(PortB,27,indiceMoteur&1);
+		ecrireLigne(PortA,21,~indiceMoteur>>1&1);
+		ecrireLigne(PortC,30,~indiceMoteur>>2&1);
 		}
 		else
 		{
-			programmerLigne(PortB,27,SORTIE0);
-			programmerLigne(PortC,30,SORTIE0);
+			ecrireLigne(PortB,27,1);
+			ecrireLigne(PortA,21,0);
+			ecrireLigne(PortC,30,0);
 		}
+
 		if(lireLigne(PortB,25))
 		{
-			positionnerMoteur(indiceMoteur,tabAngle[i]);
-			i=(i+1)%4;
-			
+			if(indiceMoteur!=5)
+			{
+				positionnerMoteur(indiceMoteur,tabAngle[tabMoteur[indiceMoteur]]);
+				tabMoteur[indiceMoteur]=(tabMoteur[indiceMoteur]+1)%4;
+			}
+			else
+			{
+				retourAZero();
+			}
 			while (lireLigne(PortB,25));
 		}
 		if(lireLigne(PortC,26))
 		{
-			
-			indiceMoteur=(indiceMoteur+1)%2;
+	
+			indiceMoteur=(indiceMoteur+1)%6;
 			while(lireLigne(PortC,26));
 		}
 	}
+	
 }
