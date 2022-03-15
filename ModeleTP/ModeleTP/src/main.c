@@ -18,9 +18,13 @@ void init(){
 	programmerLigne(PortC,30,SORTIE0);//Gauche
 	programmerLigne(PortB,27,SORTIE0);//Droite
 	programmerLigne(PortA,21,SORTIE1);//Milieu
+	
+	//Timer
+	allumerPeriph(Timer1);
+	timerModeDelai(Timer1, HDIV2, 1680000UL, REPETITIF, INC);
 }
 
-int tabAngle[] = {10,0,-10,0};
+int tabAngle[] = {30,0,-30,0};
 //BASE = 0 , EPAULE = 1
 int indiceMoteur = 0;
 int tabMoteur[] = {0,0,0,0,0};
@@ -35,7 +39,29 @@ void retourAZero()
 		tabMoteur[i]=0;
 	}
 }
-
+void positionnerMoteurLent(int moteur,int angleActuel, int angleSuivant)
+{
+	lancerTimer(Timer1);
+	printf("L'angle actuel : %d, l'angle suivant: %d \n", angleActuel, angleSuivant);
+	
+	if (angleActuel>=angleSuivant)
+	{
+		for (int i=angleActuel;i>angleSuivant;i--)
+		{
+			positionnerMoteur(moteur,i);
+			while (!(testerEtatTimer(Timer1,LIMITE)));
+		}
+	}
+	else
+	{
+		for (int i=angleActuel;i<angleSuivant;i++)
+		{
+			positionnerMoteur(moteur,i);
+			while (!(testerEtatTimer(Timer1,LIMITE)));
+		}
+	}
+	arreterTimer(Timer1);
+}
 int main (void)
 {
 	init();
@@ -58,7 +84,7 @@ int main (void)
 		{
 			if(indiceMoteur!=5)
 			{
-				positionnerMoteur(indiceMoteur,tabAngle[tabMoteur[indiceMoteur]]);
+				positionnerMoteurLent(indiceMoteur,tabAngle[tabMoteur[indiceMoteur]],tabAngle[(tabMoteur[indiceMoteur]+1)%4]);
 				tabMoteur[indiceMoteur]=(tabMoteur[indiceMoteur]+1)%4;
 			}
 			else
